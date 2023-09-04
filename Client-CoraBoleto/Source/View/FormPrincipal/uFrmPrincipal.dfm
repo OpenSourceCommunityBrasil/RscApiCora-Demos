@@ -310,7 +310,6 @@ object FrmPrincipal: TFrmPrincipal
             Images = imgList32
             TabOrder = 0
             OnClick = btn_webhook_novoClick
-            ExplicitLeft = 0
           end
           object btn_webhook_deletar: TButton
             Left = 106
@@ -1140,7 +1139,6 @@ object FrmPrincipal: TFrmPrincipal
               Padding.Right = 10
               Padding.Bottom = 5
               TabOrder = 0
-              ExplicitTop = 392
               object SpeedButton1: TSpeedButton
                 Left = 742
                 Top = 6
@@ -1399,8 +1397,8 @@ object FrmPrincipal: TFrmPrincipal
     OnNewWebhook = OnNewWebhook
     OnConsultarWebhooks = OnConsultarWebhooks
     OnDeletarWebhook = OnDeletarWebhook
-    Left = 489
-    Top = 7
+    Left = 281
+    Top = 263
   end
   object dsServicos: TDataSource
     DataSet = fdmServicos

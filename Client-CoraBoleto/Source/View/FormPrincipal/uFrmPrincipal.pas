@@ -539,7 +539,7 @@ begin
 
   ConfigCoraBoleto(RscCoraBoleto1);
   RscCoraBoleto1.Token.access_token :=  IniConfigReadString('TOKEN_TRANSACAO', 'Access_Token', '');
-  RscCoraBoleto1.ConsultarBoletos('2023-03-01', '2024-04-13', Status);
+  RscCoraBoleto1.ConsultarBoletos('2022-03-01', '2024-04-13', Status);
 end;
 
 procedure TFrmPrincipal.dbgServicosDrawColumnCell(Sender: TObject;
@@ -1221,7 +1221,3 @@ begin
 end;
 
 end.
-
-
-
-
