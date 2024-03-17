@@ -69,14 +69,14 @@ uses
   , Rsc.Api.Cora.Boleto.Credenciais
   , Rsc.Api.Cora.Boleto.Schema.Resp.Token
   , Rsc.Api.Cora.Boleto.Schema.Resp.NewBoleto
-  , Rsc.Api.Cora.Boleto.Schema.Resp.NewBoletoPix
+//  , Rsc.Api.Cora.Boleto.Schema.Resp.NewBoletoPix
   , Rsc.Api.Cora.Boleto.Schema.Resp.BoletoDetalhes
   , Rsc.Api.Cora.Boleto.Schema.Resp.Boletos
   , Rsc.Api.Cora.Boleto.Schema.Resp.NewWebhook
   , Rsc.Api.Cora.Boleto.Schema.Resp.Webhooks
 
   , Rsc.Api.Cora.Boleto.Schema.Req.NewBoleto
-  , Rsc.Api.Cora.Boleto.Schema.Req.NewBoletoPix
+//  , Rsc.Api.Cora.Boleto.Schema.Req.NewBoletoPix
   , Rsc.Api.Cora.Boleto.Schema.Req.AlterarNotificacaoBoleto
   , Rsc.Api.Cora.Boleto.Schema.Req.NewWebhook
 
@@ -132,7 +132,6 @@ type
     btn_boletos: TButton;
     tbs_Boletos: TTabSheet;
     Panel7: TPanel;
-    Button1: TButton;
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
@@ -228,13 +227,10 @@ type
     Label27: TLabel;
     edt_CodInternoCliente: TEdit;
     btn_GerarTokenTransacao: TButton;
-    tbs_BoletoPIX_Novo: TTabSheet;
     tbs_BoletoConsultar: TTabSheet;
     tbs_BoletoCancelar: TTabSheet;
     tbs_BoletoEditarNotificacao: TTabSheet;
     tbs_BoletoListarTodos: TTabSheet;
-    Panel9: TPanel;
-    SpeedButton1: TSpeedButton;
     Panel10: TPanel;
     SpeedButton2: TSpeedButton;
     Panel11: TPanel;
@@ -256,6 +252,12 @@ type
     fdm_ListaBoletoscustomer_amount: TFloatField;
     fdm_ListaBoletosservices_description: TStringField;
     btn_AtualizarTokenTransacao: TButton;
+    chk_carne: TCheckBox;
+    GroupBox14: TGroupBox;
+    edt_NumParc: TEdit;
+    Label28: TLabel;
+    Label29: TLabel;
+    edt_dia_venc: TEdit;
     procedure FormCreate(Sender: TObject);
     procedure btn_TokenClick(Sender: TObject);
     procedure btn_ConfigurarClick(Sender: TObject);
@@ -269,7 +271,7 @@ type
 
     procedure OnToken(Sender : TObject; Const Token: TToken = nil; Erro: String    = '';  CodResp: integer  = -1);
     procedure OnGerarBoleto(Sender : TObject; Const Boleto: TBoletoResp = nil; Erro: String    = '';  CodResp: integer  = -1);
-    procedure OnGerarBoletoPix(Sender : TObject; Const BoletoPix: TBoletoPixResp = nil; Erro: String    = '';  CodResp: integer  = -1);
+//    procedure OnGerarBoletoPix(Sender : TObject; Const BoletoPix: TBoletoPixResp = nil; Erro: String    = '';  CodResp: integer  = -1);
     procedure OnConsultarBoleto(Sender : TObject; Const BoletoDetalhes: TBoletoDetalhesResp = nil; Erro: String    = '';  CodResp: integer  = -1);
     procedure OnConsultarBoletos(Sender : TObject; Const BoletosList: TBoletosListResp = nil; Erro: String    = '';  CodResp: integer  = -1);
     procedure OnDeletarBoleto(Sender : TObject; Const Erro: String    = '';  CodResp: integer  = -1);
@@ -284,7 +286,6 @@ type
       DataCol: Integer; Column: TColumn; State: TGridDrawState);
     procedure fdmServicosAfterPost(DataSet: TDataSet);
     procedure Button2Click(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
     procedure btn_nb_SolicitarNovoBoletoClick(Sender: TObject);
     procedure btn_SolicitarAutorizacaoClick(Sender: TObject);
     procedure btn_GerarTokenTransacaoClick(Sender: TObject);
@@ -313,9 +314,10 @@ var
   FrmPrincipal: TFrmPrincipal;
 
 const
-  URL_CALLBACK              = 'https://multisofterp.com.br/callback/calback?autcli={autcli}';
-  URL_RECUPERAR_CALLBACK    = 'https://multisofterp.com.br/callback/enviacode?autcli={autcli}';
-  URL_REMOVER_CODE_CALLBACK = 'https://multisofterp.com.br/callback/deletecode?autcli={autcli}&session_state={session_state}';
+  URL_BASE                  = 'https://multisofterp.com.br';
+  URL_CALLBACK              = URL_BASE  + '/callback/calback?autcli={autcli}';
+  URL_RECUPERAR_CALLBACK    = URL_BASE  + '/callback/enviacode?autcli={autcli}';
+  URL_REMOVER_CODE_CALLBACK = URL_BASE  + '/callback/deletecode?autcli={autcli}&session_state={session_state}';
 
 implementation
 
@@ -659,7 +661,7 @@ begin
       Exit;
     end;
 
-  sUrl  :=  URL_CALLBACK  + Trim(edt_CodInternoCliente.Text);
+  sUrl  :=  StringReplace(URL_CALLBACK, '{autcli}', Trim(edt_CodInternoCliente.Text), [rfReplaceAll]);
 
   ConfigCoraBoleto(RscCoraBoleto1);
   RscCoraBoleto1.NewToken(sCode, sUrl);
@@ -745,16 +747,8 @@ begin
     end;
 end;
 
-procedure TFrmPrincipal.Button1Click(Sender: TObject);
-begin
-  tbs_nb_payment_forms.TabVisible :=  True;
-  pgc_Boletos.ActivePage          :=  tbs_Boleto_Novo;
-  pgc_NovoBoleto.ActivePage       :=  tbs_nb_identificacao;
-end;
-
 procedure TFrmPrincipal.Button2Click(Sender: TObject);
 begin
-  tbs_nb_payment_forms.TabVisible :=  False;
   pgc_Boletos.ActivePage          :=  tbs_Boleto_Novo;
   pgc_NovoBoleto.ActivePage       :=  tbs_nb_identificacao;
 end;
@@ -832,9 +826,7 @@ begin
       pgc_Boletos.Pages[C].TabVisible  :=  False;
     end;
 
-
   mm_Resp_token.Lines.Clear;
-
 
   arqIni  := TIniFile.Create(ExtractFilePath(ParamStr(0)) + 'Config.ini');
   try
@@ -864,6 +856,9 @@ begin
     begin
       chkb_nb_FormasPgto.Checked[I] :=  True;
     end;
+
+  dtp_nb_TPgto_DataVencimento.Date  :=  Now + 5;
+
 end;
 
 function TFrmPrincipal.IniConfigReadString(const Section,
@@ -1019,18 +1014,18 @@ begin
     end;
 end;
 
-procedure TFrmPrincipal.OnGerarBoletoPix(Sender: TObject;
-  const BoletoPix: TBoletoPixResp; Erro: String; CodResp: integer);
-begin
-  if Erro = EmptyStr then
-    begin
-      ShowMessage(BoletoPix.ToString);
-    end
-  else
-    begin
-      MessageDlg(Erro, TMsgDlgType.mtError, [TMsgDlgBtn.mbOK],0 );
-    end;
-end;
+//procedure TFrmPrincipal.OnGerarBoletoPix(Sender: TObject;
+//  const BoletoPix: TBoletoPixResp; Erro: String; CodResp: integer);
+//begin
+//  if Erro = EmptyStr then
+//    begin
+//      ShowMessage(BoletoPix.ToString);
+//    end
+//  else
+//    begin
+//      MessageDlg(Erro, TMsgDlgType.mtError, [TMsgDlgBtn.mbOK],0 );
+//    end;
+//end;
 
 procedure TFrmPrincipal.OnNewWebhook(Sender: TObject;
   const NewWebhook: TWebhookResp; Erro: String; CodResp: integer);
@@ -1183,12 +1178,44 @@ begin
           end;
       end;
 
+    var Fpgto: TArray<string>;
+    var qtdechk: integer;
+
+    qtdechk := 0;
+    for I := 0 to chkb_nb_FormasPgto.Items.Count - 1 do
+      begin
+        if chkb_nb_FormasPgto.Checked[I] then
+          inc(qtdechk);
+      end;
+
+
+    SetLength(Fpgto, qtdechk);
+
+    if chkb_nb_FormasPgto.Checked[0] then
+      begin
+        Fpgto[0]  :=  'BANK_SLIP';
+      end;
+
+    if chkb_nb_FormasPgto.Checked[1] then
+      begin
+        Fpgto[1]  :=  'PIX';
+      end;
+
+    BoletoReq.payment_forms :=  Fpgto;
+
+    BoletoReq.IsCarne :=  chk_carne.Checked;
+    if BoletoReq.IsCarne then
+      begin
+        BoletoReq.installment.number_of             :=  StrToInt(edt_NumParc.Text);
+        BoletoReq.installment.due_date.day_of_month :=  StrToInt(edt_dia_venc.Text);
+      end;
+
     BoletoReq.Notifications.Rules :=  RulesArray;
 
     BoletoReq.payment_terms.Discount.&Type    :=  uppercase(cbbx_nb_TPgto_DescontoTipo.Items[cbbx_nb_TPgto_DescontoTipo.ItemIndex]);
     BoletoReq.payment_terms.Discount.Value    :=  StrToFloatDef(edt_nb_TPgto_DescontoValor.Text, 0);
     BoletoReq.payment_terms.due_date          :=  dtp_nb_TPgto_DataVencimento.Date;
-    BoletoReq.payment_terms.Fine.Amount       :=  StrToFloatDef(edt_nb_TPgto_MultaValor.Text, 0);
+    BoletoReq.payment_terms.Fine.Amount       :=  StrToFloatDef(edt_nb_TPgto_MultaValor.Text, 0) * 100;
     BoletoReq.payment_terms.Interest.Rate     :=  StrToFloatDef(edt_nb_TPgto_MultaValor_InteresseAvaliar.Text, 0);
 
     if fdmServicos.Active then
@@ -1199,7 +1226,7 @@ begin
           while not fdmServicos.Eof do
             begin
               Servicos              :=  Rsc.Api.Cora.Boleto.Classes.ServicesReq.TServices.Create;
-              Servicos.Amount       :=  fdmServicos.FieldByName('valor').AsFloat;
+              Servicos.Amount       :=  fdmServicos.FieldByName('valor').AsFloat * 100;
               Servicos.Description  :=  fdmServicos.FieldByName('descricao').AsString;
               Servicos.Name         :=  fdmServicos.FieldByName('nome').AsString;
 

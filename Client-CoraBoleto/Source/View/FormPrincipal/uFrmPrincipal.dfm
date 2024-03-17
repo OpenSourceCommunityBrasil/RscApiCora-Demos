@@ -151,7 +151,7 @@ object FrmPrincipal: TFrmPrincipal
           Caption = 'Senha'
         end
         object Label27: TLabel
-          Left = 6
+          Left = 3
           Top = 98
           Width = 106
           Height = 15
@@ -362,18 +362,6 @@ object FrmPrincipal: TFrmPrincipal
           Padding.Right = 10
           Padding.Bottom = 10
           TabOrder = 0
-          object Button1: TButton
-            Left = 131
-            Top = 11
-            Width = 120
-            Height = 43
-            Align = alLeft
-            Caption = 'Novo C/ PIX'
-            ImageIndex = 18
-            Images = imgList32
-            TabOrder = 0
-            OnClick = Button1Click
-          end
           object Button2: TButton
             Left = 11
             Top = 11
@@ -383,11 +371,11 @@ object FrmPrincipal: TFrmPrincipal
             Caption = 'Novo'
             ImageIndex = 10
             Images = imgList32
-            TabOrder = 1
+            TabOrder = 0
             OnClick = Button2Click
           end
           object Button3: TButton
-            Left = 251
+            Left = 131
             Top = 11
             Width = 120
             Height = 43
@@ -395,11 +383,11 @@ object FrmPrincipal: TFrmPrincipal
             Caption = 'Consultar'
             ImageIndex = 21
             Images = imgList32
-            TabOrder = 2
+            TabOrder = 1
             OnClick = Button3Click
           end
           object Button4: TButton
-            Left = 371
+            Left = 251
             Top = 11
             Width = 120
             Height = 43
@@ -407,11 +395,11 @@ object FrmPrincipal: TFrmPrincipal
             Caption = 'Cancelar'
             ImageIndex = 7
             Images = imgList32
-            TabOrder = 3
+            TabOrder = 2
             OnClick = Button4Click
           end
           object Button5: TButton
-            Left = 611
+            Left = 491
             Top = 11
             Width = 120
             Height = 43
@@ -419,11 +407,11 @@ object FrmPrincipal: TFrmPrincipal
             Caption = 'Listar todos'
             ImageIndex = 13
             Images = imgList32
-            TabOrder = 4
+            TabOrder = 3
             OnClick = Button5Click
           end
           object Button6: TButton
-            Left = 491
+            Left = 371
             Top = 11
             Width = 120
             Height = 43
@@ -431,7 +419,7 @@ object FrmPrincipal: TFrmPrincipal
             Caption = 'Edit. Notifica'#231#227'o'
             ImageIndex = 15
             Images = imgList32
-            TabOrder = 5
+            TabOrder = 4
             OnClick = Button6Click
           end
         end
@@ -440,7 +428,7 @@ object FrmPrincipal: TFrmPrincipal
           Top = 65
           Width = 802
           Height = 469
-          ActivePage = tbs_BoletoListarTodos
+          ActivePage = tbs_Boleto_Novo
           Align = alClient
           TabOrder = 1
           object tbs_Boleto_Novo: TTabSheet
@@ -451,7 +439,7 @@ object FrmPrincipal: TFrmPrincipal
               Top = 0
               Width = 794
               Height = 389
-              ActivePage = tbs_nb_payment_terms
+              ActivePage = tbs_nb_payment_forms
               Align = alClient
               Images = imgList32
               TabOrder = 0
@@ -489,6 +477,52 @@ object FrmPrincipal: TFrmPrincipal
                     Caption = 'GERAR'
                     TabOrder = 1
                     OnClick = btn_gerarGuid_novoBoletoClick
+                  end
+                  object chk_carne: TCheckBox
+                    Left = 7
+                    Top = 72
+                    Width = 66
+                    Height = 17
+                    Caption = 'Carn'#234
+                    TabOrder = 2
+                  end
+                  object GroupBox14: TGroupBox
+                    Left = 7
+                    Top = 95
+                    Width = 236
+                    Height = 82
+                    Caption = 'Configurar Carn'#234
+                    TabOrder = 3
+                    object Label28: TLabel
+                      Left = 16
+                      Top = 16
+                      Width = 60
+                      Height = 15
+                      Caption = 'N'#176' Parcelas'
+                    end
+                    object Label29: TLabel
+                      Left = 128
+                      Top = 16
+                      Width = 48
+                      Height = 15
+                      Caption = 'Dia Venc.'
+                    end
+                    object edt_NumParc: TEdit
+                      Left = 16
+                      Top = 37
+                      Width = 60
+                      Height = 23
+                      TabOrder = 0
+                      Text = '0'
+                    end
+                    object edt_dia_venc: TEdit
+                      Left = 128
+                      Top = 37
+                      Width = 60
+                      Height = 23
+                      TabOrder = 1
+                      Text = '0'
+                    end
                   end
                 end
               end
@@ -873,14 +907,14 @@ object FrmPrincipal: TFrmPrincipal
                   Top = 0
                   Width = 129
                   Height = 73
-                  Caption = 'Interesse'
+                  Caption = 'juros'
                   TabOrder = 2
                   object Label21: TLabel
                     Left = 7
                     Top = 19
-                    Width = 36
+                    Width = 10
                     Height = 15
-                    Caption = 'Avaliar'
+                    Caption = '%'
                   end
                   object edt_nb_TPgto_MultaValor_InteresseAvaliar: TEdit
                     Left = 7
@@ -1123,43 +1157,6 @@ object FrmPrincipal: TFrmPrincipal
               end
             end
           end
-          object tbs_BoletoPIX_Novo: TTabSheet
-            Caption = 'tbs_BoletoPIX_Novo'
-            ImageIndex = 1
-            object Panel9: TPanel
-              Tag = 2
-              Left = 0
-              Top = 389
-              Width = 794
-              Height = 50
-              Align = alBottom
-              Caption = 'Panel8'
-              Padding.Left = 5
-              Padding.Top = 5
-              Padding.Right = 10
-              Padding.Bottom = 5
-              TabOrder = 0
-              object SpeedButton1: TSpeedButton
-                Left = 742
-                Top = 6
-                Width = 41
-                Height = 38
-                Align = alRight
-                ImageIndex = 27
-                Images = imgList32
-                Flat = True
-                Font.Charset = DEFAULT_CHARSET
-                Font.Color = clWindowText
-                Font.Height = -16
-                Font.Name = 'Segoe UI'
-                Font.Style = [fsBold]
-                Layout = blGlyphBottom
-                ParentFont = False
-                ExplicitLeft = 680
-                ExplicitTop = 12
-              end
-            end
-          end
           object tbs_BoletoConsultar: TTabSheet
             Caption = 'tbs_BoletoConsultar'
             ImageIndex = 2
@@ -1387,9 +1384,9 @@ object FrmPrincipal: TFrmPrincipal
   end
   object RscCoraBoleto1: TRscCoraBoleto
     Ambiente = taHomologacao
+    DownalodPDF = False
     OnToken = OnToken
     OnGerarBoleto = OnGerarBoleto
-    OnGerarBoletoPix = OnGerarBoletoPix
     OnConsultarBoleto = OnConsultarBoleto
     OnConsultarBoletos = OnConsultarBoletos
     OnDeletarBoleto = OnDeletarBoleto
@@ -1397,8 +1394,8 @@ object FrmPrincipal: TFrmPrincipal
     OnNewWebhook = OnNewWebhook
     OnConsultarWebhooks = OnConsultarWebhooks
     OnDeletarWebhook = OnDeletarWebhook
-    Left = 281
-    Top = 263
+    Left = 529
+    Top = 255
   end
   object dsServicos: TDataSource
     DataSet = fdmServicos
