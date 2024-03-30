@@ -83,6 +83,9 @@ uses
   , Rsc.Api.Cora.Boleto.Classes.ServicesReq
   , Rsc.Api.Cora.Boleto.Classes.Notifications
 
+  , Rsc.Api.Cora.Boleto.Schema.Req.NewCarne
+  , Rsc.Api.Cora.Boleto.Schema.Resp.NewCarne
+
   , Data.DB
 
   , FireDAC.Stan.Intf
@@ -271,7 +274,6 @@ type
 
     procedure OnToken(Sender : TObject; Const Token: TToken = nil; Erro: String    = '';  CodResp: integer  = -1);
     procedure OnGerarBoleto(Sender : TObject; Const Boleto: TBoletoResp = nil; Erro: String    = '';  CodResp: integer  = -1);
-//    procedure OnGerarBoletoPix(Sender : TObject; Const BoletoPix: TBoletoPixResp = nil; Erro: String    = '';  CodResp: integer  = -1);
     procedure OnConsultarBoleto(Sender : TObject; Const BoletoDetalhes: TBoletoDetalhesResp = nil; Erro: String    = '';  CodResp: integer  = -1);
     procedure OnConsultarBoletos(Sender : TObject; Const BoletosList: TBoletosListResp = nil; Erro: String    = '';  CodResp: integer  = -1);
     procedure OnDeletarBoleto(Sender : TObject; Const Erro: String    = '';  CodResp: integer  = -1);
@@ -298,6 +300,8 @@ type
     procedure SpeedButton3Click(Sender: TObject);
     procedure SpeedButton4Click(Sender: TObject);
     procedure btn_AtualizarTokenTransacaoClick(Sender: TObject);
+    procedure RscCoraBoleto1GerarCarne(Sender: TObject; const Carne: TCarneResp;
+      Erro: string; CodResp: Integer);
 
   protected
     procedure ConfigCoraBoleto(vRscCoraBoleto: TRscCoraBoleto);
@@ -329,6 +333,9 @@ begin
     begin
       vRscCoraBoleto.Credenciais.client_id      :=  Trim(edt_usuario.Text);
       vRscCoraBoleto.Credenciais.client_secret  :=  Trim(edt_Password.Text);
+      vRscCoraBoleto.DownalodPDF                :=  True;
+      vRscCoraBoleto.PathDownloadPDF            :=  ExtractFilePath(ParamStr(0))  + 'Boletos/';
+      CreateDir(vRscCoraBoleto.PathDownloadPDF);
     end;
 end;
 
@@ -486,6 +493,19 @@ begin
     StrmBody.Free;
     StrlHeader.Free;
   end;
+end;
+
+procedure TFrmPrincipal.RscCoraBoleto1GerarCarne(Sender: TObject;
+  const Carne: TCarneResp; Erro: string; CodResp: Integer);
+begin
+  if Erro = EmptyStr then
+    begin
+      ShowMessage('Carne criado:'  + sLineBreak  + Carne.ToString);
+    end
+  else
+    begin
+      MessageDlg(Erro, TMsgDlgType.mtError, [TMsgDlgBtn.mbOK],0 );
+    end;
 end;
 
 procedure TFrmPrincipal.SpeedButton2Click(Sender: TObject);
@@ -1014,19 +1034,6 @@ begin
     end;
 end;
 
-//procedure TFrmPrincipal.OnGerarBoletoPix(Sender: TObject;
-//  const BoletoPix: TBoletoPixResp; Erro: String; CodResp: integer);
-//begin
-//  if Erro = EmptyStr then
-//    begin
-//      ShowMessage(BoletoPix.ToString);
-//    end
-//  else
-//    begin
-//      MessageDlg(Erro, TMsgDlgType.mtError, [TMsgDlgBtn.mbOK],0 );
-//    end;
-//end;
-
 procedure TFrmPrincipal.OnNewWebhook(Sender: TObject;
   const NewWebhook: TWebhookResp; Erro: String; CodResp: integer);
 begin
@@ -1148,103 +1155,186 @@ var
   Servicos      : TServices;
   ServicesArray : TArray<TServices>;
   RulesArray    : TArray<string>;
-  I: Integer;
+  I             : Integer;
+  Carne         : TCarneReq;
+
 begin
-  BoletoReq  := TBoletoReq.Create;
-  try
-    BoletoReq.Code                            :=  edt_nb_code.Text;
-    BoletoReq.Customer.Address.City           :=  edt_nb_Cliente_end_Cidade.Text;
-    BoletoReq.Customer.Address.Complement     :=  edt_nb_Cliente_end_Complemento.Text;
-    BoletoReq.Customer.Address.District       :=  edt_nb_Cliente_end_Bairro.Text;
-    BoletoReq.Customer.Address.Number         :=  edt_nb_Cliente_end_numero.Text;
-    BoletoReq.Customer.Address.State          :=  edt_nb_Cliente_end_UF.Text;
-    BoletoReq.Customer.Address.Street         :=  edt_nb_Cliente_end_rua.Text;
-    BoletoReq.Customer.Address.zip_code       :=  edt_nb_Cliente_end_CEP.Text;
-    BoletoReq.Customer.Document.Identity      :=  edt_nb_Cliente_Documento.Text;
-    BoletoReq.Customer.Document.&Type         :=  uppercase(cbb_nb_Cliente_Tipo_Documento.Items[cbb_nb_Cliente_Tipo_Documento.ItemIndex]);
-    BoletoReq.Customer.Email                  :=  edt_nb_Cliente_Email.Text;
-    BoletoReq.Customer.Name                   :=  edt_nb_Cliente_Nome.Text;
 
-    BoletoReq.Notifications.Channels          :=  [uppercase(cbbx_nb_Notifica_Email.Items[cbbx_nb_Notifica_Email.ItemIndex])];
-    BoletoReq.Notifications.Destination.Email :=  Edt_nb_Notifica_nomeEmail.Text;
-    BoletoReq.Notifications.Destination.Name  :=  Edt_nb_Notifica_EmailEnd.Text;
+  if chk_carne.Checked then
+    begin
+      Carne  := TCarneReq.Create;
+      try
+        Carne.Code                            :=  edt_nb_code.Text;
+        Carne.Customer.Address.City           :=  edt_nb_Cliente_end_Cidade.Text;
+        Carne.Customer.Address.Complement     :=  edt_nb_Cliente_end_Complemento.Text;
+        Carne.Customer.Address.District       :=  edt_nb_Cliente_end_Bairro.Text;
+        Carne.Customer.Address.Number         :=  edt_nb_Cliente_end_numero.Text;
+        Carne.Customer.Address.State          :=  edt_nb_Cliente_end_UF.Text;
+        Carne.Customer.Address.Street         :=  edt_nb_Cliente_end_rua.Text;
+        Carne.Customer.Address.zip_code       :=  edt_nb_Cliente_end_CEP.Text;
+        Carne.Customer.Document.Identity      :=  edt_nb_Cliente_Documento.Text;
+        Carne.Customer.Document.&Type         :=  uppercase(cbb_nb_Cliente_Tipo_Documento.Items[cbb_nb_Cliente_Tipo_Documento.ItemIndex]);
+        Carne.Customer.Email                  :=  edt_nb_Cliente_Email.Text;
+        Carne.Customer.Name                   :=  edt_nb_Cliente_Nome.Text;
 
-    SetLength(RulesArray, chkb_nb_Notifica_Regras.Count);
-    for I := 0 to chkb_nb_Notifica_Regras.Count - 1 do
-      begin
-        if chkb_nb_Notifica_Regras.Checked[I] then
+        Carne.Notifications.Channels          :=  [uppercase(cbbx_nb_Notifica_Email.Items[cbbx_nb_Notifica_Email.ItemIndex])];
+        Carne.Notifications.Destination.Email :=  Edt_nb_Notifica_nomeEmail.Text;
+        Carne.Notifications.Destination.Name  :=  Edt_nb_Notifica_EmailEnd.Text;
+
+        SetLength(RulesArray, chkb_nb_Notifica_Regras.Count);
+        for I := 0 to chkb_nb_Notifica_Regras.Count - 1 do
           begin
-            RulesArray[I]  :=  chkb_nb_Notifica_Regras.Items[I];
+            if chkb_nb_Notifica_Regras.Checked[I] then
+              begin
+                RulesArray[I]  :=  chkb_nb_Notifica_Regras.Items[I];
+              end;
           end;
-      end;
 
-    var Fpgto: TArray<string>;
-    var qtdechk: integer;
+        var Fpgto: TArray<string>;
+        var qtdechk: integer;
 
-    qtdechk := 0;
-    for I := 0 to chkb_nb_FormasPgto.Items.Count - 1 do
-      begin
-        if chkb_nb_FormasPgto.Checked[I] then
-          inc(qtdechk);
-      end;
+        qtdechk := 0;
+        for I := 0 to chkb_nb_FormasPgto.Items.Count - 1 do
+          begin
+            if chkb_nb_FormasPgto.Checked[I] then
+              inc(qtdechk);
+          end;
 
 
-    SetLength(Fpgto, qtdechk);
+        SetLength(Fpgto, qtdechk);
 
-    if chkb_nb_FormasPgto.Checked[0] then
-      begin
-        Fpgto[0]  :=  'BANK_SLIP';
-      end;
+        if chkb_nb_FormasPgto.Checked[0] then
+          begin
+            Fpgto[0]  :=  'BANK_SLIP';
+          end;
 
-    if chkb_nb_FormasPgto.Checked[1] then
-      begin
-        Fpgto[1]  :=  'PIX';
-      end;
+        if chkb_nb_FormasPgto.Checked[1] then
+          begin
+            Fpgto[1]  :=  'PIX';
+          end;
 
-    BoletoReq.payment_forms :=  Fpgto;
+        Carne.installment.number_of             :=  StrToInt(edt_NumParc.Text);
+        Carne.installment.due_date.day_of_month :=  StrToInt(edt_dia_venc.Text);
 
-    BoletoReq.IsCarne :=  chk_carne.Checked;
-    if BoletoReq.IsCarne then
-      begin
-        BoletoReq.installment.number_of             :=  StrToInt(edt_NumParc.Text);
-        BoletoReq.installment.due_date.day_of_month :=  StrToInt(edt_dia_venc.Text);
-      end;
+        Carne.payment_forms :=  Fpgto;
 
-    BoletoReq.Notifications.Rules :=  RulesArray;
-
-    BoletoReq.payment_terms.Discount.&Type    :=  uppercase(cbbx_nb_TPgto_DescontoTipo.Items[cbbx_nb_TPgto_DescontoTipo.ItemIndex]);
-    BoletoReq.payment_terms.Discount.Value    :=  StrToFloatDef(edt_nb_TPgto_DescontoValor.Text, 0);
-    BoletoReq.payment_terms.due_date          :=  dtp_nb_TPgto_DataVencimento.Date;
-    BoletoReq.payment_terms.Fine.Amount       :=  StrToFloatDef(edt_nb_TPgto_MultaValor.Text, 0) * 100;
-    BoletoReq.payment_terms.Interest.Rate     :=  StrToFloatDef(edt_nb_TPgto_MultaValor_InteresseAvaliar.Text, 0);
-
-    if fdmServicos.Active then
-      begin
-        SetLength(ServicesArray, fdmServicos.RecordCount);
-        fdmServicos.First;
-        try
-          while not fdmServicos.Eof do
-            begin
-              Servicos              :=  Rsc.Api.Cora.Boleto.Classes.ServicesReq.TServices.Create;
-              Servicos.Amount       :=  fdmServicos.FieldByName('valor').AsFloat * 100;
-              Servicos.Description  :=  fdmServicos.FieldByName('descricao').AsString;
-              Servicos.Name         :=  fdmServicos.FieldByName('nome').AsString;
-
-              ServicesArray[fdmServicos.RecNo - 1] :=  Servicos;
-              fdmServicos.Next;
+        if fdmServicos.Active then
+          begin
+            fdmServicos.First;
+            try
+              Carne.Service.Amount       :=  fdmServicos.FieldByName('valor').AsFloat * 100;
+              Carne.Service.Description  :=  fdmServicos.FieldByName('descricao').AsString;
+              Carne.Service.Name         :=  fdmServicos.FieldByName('nome').AsString;
+            except on E: Exception do
             end;
-        except on E: Exception do
-        end;
+          end;
+
+        Carne.Notifications.Rules :=  RulesArray;
+
+        Carne.payment_terms.Discount.&Type    :=  uppercase(cbbx_nb_TPgto_DescontoTipo.Items[cbbx_nb_TPgto_DescontoTipo.ItemIndex]);
+        Carne.payment_terms.Discount.Value    :=  StrToFloatDef(edt_nb_TPgto_DescontoValor.Text, 0);
+        Carne.payment_terms.due_date          :=  dtp_nb_TPgto_DataVencimento.Date;
+        Carne.payment_terms.Fine.Amount       :=  StrToFloatDef(edt_nb_TPgto_MultaValor.Text, 0) * 100;
+        Carne.payment_terms.Interest.Rate     :=  StrToFloatDef(edt_nb_TPgto_MultaValor_InteresseAvaliar.Text, 0);
+
+        ConfigCoraBoleto(RscCoraBoleto1);
+        RscCoraBoleto1.Token.access_token :=  IniConfigReadString('TOKEN_TRANSACAO', 'Access_Token', '');
+        RscCoraBoleto1.GerarCarne(Carne, edt_nb_code.Text);
+      finally
+        Carne.Free;
       end;
+    end
+  else
+    begin
+      BoletoReq  := TBoletoReq.Create;
+      try
+        BoletoReq.Code                            :=  edt_nb_code.Text;
+        BoletoReq.Customer.Address.City           :=  edt_nb_Cliente_end_Cidade.Text;
+        BoletoReq.Customer.Address.Complement     :=  edt_nb_Cliente_end_Complemento.Text;
+        BoletoReq.Customer.Address.District       :=  edt_nb_Cliente_end_Bairro.Text;
+        BoletoReq.Customer.Address.Number         :=  edt_nb_Cliente_end_numero.Text;
+        BoletoReq.Customer.Address.State          :=  edt_nb_Cliente_end_UF.Text;
+        BoletoReq.Customer.Address.Street         :=  edt_nb_Cliente_end_rua.Text;
+        BoletoReq.Customer.Address.zip_code       :=  edt_nb_Cliente_end_CEP.Text;
+        BoletoReq.Customer.Document.Identity      :=  edt_nb_Cliente_Documento.Text;
+        BoletoReq.Customer.Document.&Type         :=  uppercase(cbb_nb_Cliente_Tipo_Documento.Items[cbb_nb_Cliente_Tipo_Documento.ItemIndex]);
+        BoletoReq.Customer.Email                  :=  edt_nb_Cliente_Email.Text;
+        BoletoReq.Customer.Name                   :=  edt_nb_Cliente_Nome.Text;
 
-    BoletoReq.services  :=  ServicesArray;
+        BoletoReq.Notifications.Channels          :=  [uppercase(cbbx_nb_Notifica_Email.Items[cbbx_nb_Notifica_Email.ItemIndex])];
+        BoletoReq.Notifications.Destination.Email :=  Edt_nb_Notifica_nomeEmail.Text;
+        BoletoReq.Notifications.Destination.Name  :=  Edt_nb_Notifica_EmailEnd.Text;
 
-    ConfigCoraBoleto(RscCoraBoleto1);
-    RscCoraBoleto1.Token.access_token :=  IniConfigReadString('TOKEN_TRANSACAO', 'Access_Token', '');
-    RscCoraBoleto1.GerarBoleto(BoletoReq, edt_nb_code.Text);
-  finally
-    BoletoReq.Free;
-  end;
+        SetLength(RulesArray, chkb_nb_Notifica_Regras.Count);
+        for I := 0 to chkb_nb_Notifica_Regras.Count - 1 do
+          begin
+            if chkb_nb_Notifica_Regras.Checked[I] then
+              begin
+                RulesArray[I]  :=  chkb_nb_Notifica_Regras.Items[I];
+              end;
+          end;
+
+        var Fpgto: TArray<string>;
+        var qtdechk: integer;
+
+        qtdechk := 0;
+        for I := 0 to chkb_nb_FormasPgto.Items.Count - 1 do
+          begin
+            if chkb_nb_FormasPgto.Checked[I] then
+              inc(qtdechk);
+          end;
+
+
+        SetLength(Fpgto, qtdechk);
+
+        if chkb_nb_FormasPgto.Checked[0] then
+          begin
+            Fpgto[0]  :=  'BANK_SLIP';
+          end;
+
+        if chkb_nb_FormasPgto.Checked[1] then
+          begin
+            Fpgto[1]  :=  'PIX';
+          end;
+
+        BoletoReq.payment_forms :=  Fpgto;
+
+        if fdmServicos.Active then
+          begin
+            SetLength(ServicesArray, fdmServicos.RecordCount);
+            fdmServicos.First;
+            try
+              while not fdmServicos.Eof do
+                begin
+                  Servicos              :=  Rsc.Api.Cora.Boleto.Classes.ServicesReq.TServices.Create;
+                  Servicos.Amount       :=  fdmServicos.FieldByName('valor').AsFloat * 100;
+                  Servicos.Description  :=  fdmServicos.FieldByName('descricao').AsString;
+                  Servicos.Name         :=  fdmServicos.FieldByName('nome').AsString;
+
+                  ServicesArray[fdmServicos.RecNo - 1] :=  Servicos;
+                  fdmServicos.Next;
+                end;
+            except on E: Exception do
+            end;
+          end;
+
+        BoletoReq.Notifications.Rules :=  RulesArray;
+
+        BoletoReq.payment_terms.Discount.&Type    :=  uppercase(cbbx_nb_TPgto_DescontoTipo.Items[cbbx_nb_TPgto_DescontoTipo.ItemIndex]);
+        BoletoReq.payment_terms.Discount.Value    :=  StrToFloatDef(edt_nb_TPgto_DescontoValor.Text, 0);
+        BoletoReq.payment_terms.due_date          :=  dtp_nb_TPgto_DataVencimento.Date;
+        BoletoReq.payment_terms.Fine.Amount       :=  StrToFloatDef(edt_nb_TPgto_MultaValor.Text, 0) * 100;
+        BoletoReq.payment_terms.Interest.Rate     :=  StrToFloatDef(edt_nb_TPgto_MultaValor_InteresseAvaliar.Text, 0);
+
+        BoletoReq.services  :=  ServicesArray;
+
+        ConfigCoraBoleto(RscCoraBoleto1);
+        RscCoraBoleto1.Token.access_token :=  IniConfigReadString('TOKEN_TRANSACAO', 'Access_Token', '');
+        RscCoraBoleto1.GerarBoleto(BoletoReq, edt_nb_code.Text);
+      finally
+        BoletoReq.Free;
+      end;
+    end;
 end;
 
 end.

@@ -1387,6 +1387,7 @@ object FrmPrincipal: TFrmPrincipal
     DownalodPDF = False
     OnToken = OnToken
     OnGerarBoleto = OnGerarBoleto
+    OnGerarCarne = RscCoraBoleto1GerarCarne
     OnConsultarBoleto = OnConsultarBoleto
     OnConsultarBoletos = OnConsultarBoletos
     OnDeletarBoleto = OnDeletarBoleto
