@@ -69,14 +69,12 @@ uses
   , Rsc.Api.Cora.Boleto.Credenciais
   , Rsc.Api.Cora.Boleto.Schema.Resp.Token
   , Rsc.Api.Cora.Boleto.Schema.Resp.NewBoleto
-//  , Rsc.Api.Cora.Boleto.Schema.Resp.NewBoletoPix
   , Rsc.Api.Cora.Boleto.Schema.Resp.BoletoDetalhes
   , Rsc.Api.Cora.Boleto.Schema.Resp.Boletos
   , Rsc.Api.Cora.Boleto.Schema.Resp.NewWebhook
   , Rsc.Api.Cora.Boleto.Schema.Resp.Webhooks
 
   , Rsc.Api.Cora.Boleto.Schema.Req.NewBoleto
-//  , Rsc.Api.Cora.Boleto.Schema.Req.NewBoletoPix
   , Rsc.Api.Cora.Boleto.Schema.Req.AlterarNotificacaoBoleto
   , Rsc.Api.Cora.Boleto.Schema.Req.NewWebhook
 
@@ -318,7 +316,7 @@ var
   FrmPrincipal: TFrmPrincipal;
 
 const
-  URL_BASE                  = 'https://multisofterp.com.br';
+  URL_BASE                  = 'https://rscsistemas.com.br';
   URL_CALLBACK              = URL_BASE  + '/callback/calback?autcli={autcli}';
   URL_RECUPERAR_CALLBACK    = URL_BASE  + '/callback/enviacode?autcli={autcli}';
   URL_REMOVER_CODE_CALLBACK = URL_BASE  + '/callback/deletecode?autcli={autcli}&session_state={session_state}';
@@ -725,7 +723,7 @@ begin
   sResource   :=  '';
   sTriger     :=  '';
 
-  sUrlCalback :=  InputBox('Criar WebHook;', 'Informe a url de calback', 'https://multisofterp.com.br');
+  sUrlCalback :=  InputBox('Criar WebHook;', 'Informe a url de calback', 'https://rscsistemas.com.br');
   if sUrlCalback = EmptyStr then
     Exit;
 
@@ -829,11 +827,6 @@ begin
           end;
           
         end;
-
-//      if Components[C] is TEdit then
-//        begin
-//          TEdit(Components[C]).Text              :=  EmptyStr
-//        end;
     end;
 
   for C := 0 to pgc.PageCount - 1 do

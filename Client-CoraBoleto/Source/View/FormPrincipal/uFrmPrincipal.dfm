@@ -131,7 +131,7 @@ object FrmPrincipal: TFrmPrincipal
       Top = 1
       Width = 810
       Height = 564
-      ActivePage = tbs_Boletos
+      ActivePage = tbs_Credenciais
       Align = alClient
       TabOrder = 0
       object tbs_Credenciais: TTabSheet
